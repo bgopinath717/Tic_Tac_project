@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Maven: effective-pom",
+            "type": "shell",
+            "command": "mvn -f \"${workspaceFolder}\\pom.xml\" help:effective-pom",
+            "problemMatcher": [],
+            "group": "none",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Maven: package (skip tests)",
+            "type": "shell",
+            "command": "mvn -f \"${workspaceFolder}\\pom.xml\" -DskipTests package",
+            "problemMatcher": [],
+            "group": "none",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        }
+    ]
+}

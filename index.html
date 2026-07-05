@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+
+        :root {
+            /* Dark Mode Colors (Default) */
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --accent: #fd79a8;
+            --dark: #2d3436;
+            --light: #dfe6e9;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #e17055;
+            --neon-blue: #18dcff;
+            --neon-pink: #ff4d8d;
+            --neon-purple: #c56cf0;
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-tertiary: #0f3460;
+            --text-primary: #dfe6e9;
+            --text-secondary: #a29bfe;
+            --card-bg: rgba(45, 52, 54, 0.9);
+            --card-border: rgba(108, 92, 231, 0.3);
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --cell-bg: rgba(255, 255, 255, 0.05);
+            --cell-border: rgba(108, 92, 231, 0.3);
+        }
+
+
+        [data-theme="light"] {
+            /* Light Mode Colors */
+            --primary: #5b4fcf;
+            --secondary: #7c73d6;
+            --accent: #e5679b;
+            --dark: #f8f9fa;
+            --light: #2d3436;
+            --success: #00a885;
+            --warning: #e6b85c;
+            --danger: #c86448;
+            --neon-blue: #15c2e0;
+            --neon-pink: #e6457a;
+            --neon-purple: #b45cd9;
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e4e6eb;
+            --text-primary: #2d3436;
+            --text-secondary: #5b4fcf;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-border: rgba(108, 92, 231, 0.2);
+            --input-bg: rgba(255, 255, 255, 0.7);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --cell-bg: rgba(255, 255, 255, 0.9);
+            --cell-border: rgba(108, 92, 231, 0.3);
+        }
+
+
+        body {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+
+        .theme-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 50px;
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+
+        .theme-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .page {
+            display: none;
+            width: 95%;
+            max-width: 900px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--card-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+            animation: pulse 2s infinite alternate;
+        }
+
+
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(24, 220, 255, 0.5);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+
+        h2 {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+
+        .tagline {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--card-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
+        }
+
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+
+
+        .btn-secondary {
+            background: var(--input-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+        }
+
+
+        .btn-secondary:hover {
+            background: var(--card-border);
+            transform: translateY(-3px);
+        }
+
+
+        .btn-accent {
+            background: linear-gradient(45deg, var(--accent), var(--neon-pink));
+            color: white;
+        }
+
+
+        .btn-accent:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(253, 121, 168, 0.4);
+        }
+
+
+        .mode-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+
+        .mode-card {
+            background: var(--input-bg);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+
+        .mode-card.active {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.2);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+        }
+
+
+        .mode-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--neon-blue);
+        }
+
+
+        .mode-card h3 {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+
+        .mode-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+
+        .stat-card {
+            background: var(--input-bg);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid var(--card-border);
+        }
+
+
+        .stat-card h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+
+        .timer-card {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 10px;
+            margin: 20px 0;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            background: var(--cell-bg);
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid var(--cell-border);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .cell {
+            aspect-ratio: 1;
+            background: var(--card-bg);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid var(--cell-border);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .cell:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .cell.x {
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+
+        .cell.o {
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+
+        .cell.winning {
+            animation: winPulse 1.5s infinite;
+            background: rgba(0, 184, 148, 0.2);
+            border-color: var(--success);
+        }
+
+
+        .game-status {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--input-bg);
+            border-radius: 15px;
+            width: 100%;
+            transition: all 0.3s ease;
+            border: 1px solid var(--card-border);
+        }
+
+
+        .status-turn {
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+
+        .status-win {
+            color: var(--success);
+            text-shadow: 0 0 10px var(--success);
+            animation: celebration 2s infinite;
+        }
+
+
+        .status-draw {
+            color: var(--warning);
+            text-shadow: 0 0 10px var(--warning);
+        }
+
+
+        .voice-control {
+            background: var(--input-bg);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--card-border);
+            margin-top: 20px;
+        }
+
+
+        .voice-control h3 {
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+
+        .voice-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 50px;
+            background: var(--card-bg);
+        }
+
+
+        .voice-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--danger);
+            transition: all 0.3s ease;
+        }
+
+
+        .voice-indicator.active {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 1.5s infinite;
+        }
+
+
+        .voice-commands {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+
+        .player-card {
+            background: var(--input-bg);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            border: 1px solid var(--card-border);
+        }
+
+
+        .player-card.active {
+            border: 2px solid var(--primary);
+            background: rgba(108, 92, 231, 0.2);
+        }
+
+
+        .player-card h3 {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+
+        .player-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+
+        .link-section {
+            background: var(--input-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+
+        .link-box {
+            display: flex;
+            margin: 15px 0;
+        }
+
+
+        .link-input {
+            flex: 1;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+
+        .copy-btn {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            width: auto;
+            padding: 12px 20px;
+        }
+
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 0.7; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.1); }
+        }
+
+
+        @keyframes winPulse {
+            0% { box-shadow: 0 0 5px var(--success); }
+            50% { box-shadow: 0 0 20px var(--success); }
+            100% { box-shadow: 0 0 5px var(--success); }
+        }
+
+
+        @keyframes celebration {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+
+        /* Confetti Effect */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            opacity: 0;
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .page {
+                padding: 20px;
+            }
+           
+            h1 {
+                font-size: 2.2rem;
+            }
+           
+            h2 {
+                font-size: 1.5rem;
+            }
+           
+            .game-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+           
+            .player-info {
+                flex-direction: column;
+            }
+           
+            .player-card {
+                margin: 5px 0;
+            }
+           
+            .cell {
+                font-size: 3rem;
+            }
+           
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button class="theme-btn" id="themeToggle">
+            <i class="fas fa-moon"></i> Dark Mode
+        </button>
+    </div>
+
+
+    <!-- Introduction Page -->
+    <div id="intro-page" class="page active">
+        <div class="logo">
+            <i class="fas fa-gamepad"></i>
+        </div>
+        <h1>TIC TAC TOE</h1>
+        <p class="tagline">The ultimate gaming experience with voice control</p>
+       
+        <div class="form-group">
+            <label for="player1">Player 1 Name (X)</label>
+            <input type="text" id="player1" placeholder="Enter Player 1 name" value="Player 1">
+        </div>
+       
+        <div class="form-group">
+            <label for="player2">Player 2 Name (O)</label>
+            <input type="text" id="player2" placeholder="Enter Player 2 name" value="Player 2">
+        </div>
+       
+        <div class="form-group">
+            <label for="timeLimit">Time Limit (seconds per move)</label>
+            <select id="timeLimit">
+                <option value="10">10 Seconds</option>
+                <option value="20">20 Seconds</option>
+                <option value="30" selected>30 Seconds</option>
+                <option value="60">60 Seconds</option>
+                <option value="0">No Limit</option>
+            </select>
+        </div>
+       
+        <button class="btn btn-primary" id="next-to-mode">
+            Next: Select Game Mode <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+
+
+    <!-- Mode Selection Page -->
+    <div id="mode-page" class="page">
+        <div class="logo">
+            <i class="fas fa-cogs"></i>
+        </div>
+        <h2>SELECT GAME MODE</h2>
+        <p class="tagline">Choose how you want to play</p>
+       
+        <div class="mode-selector">
+            <div class="mode-card active" data-mode="man-vs-man">
+                <i class="fas fa-users"></i>
+                <h3>Man vs Man</h3>
+                <p>Two players on the same device</p>
+            </div>
+           
+            <div class="mode-card" data-mode="man-vs-robot">
+                <i class="fas fa-robot"></i>
+                <h3>Man vs Robot</h3>
+                <p>Play against AI opponent</p>
+            </div>
+           
+            <div class="mode-card" data-mode="multiplayer">
+                <i class="fas fa-globe"></i>
+                <h3>Multiplayer Online</h3>
+                <p>Play with friends online</p>
+            </div>
+        </div>
+       
+        <div id="link-section" class="link-section" style="display: none;">
+            <h3>Share this link with your friend</h3>
+            <div class="link-box">
+                <input type="text" id="game-link" class="link-input" value="https://mytic-tac-toe/game/abc123" readonly>
+                <button class="btn btn-secondary copy-btn" id="copy-link">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+            <p>Waiting for opponent to join...</p>
+        </div>
+       
+        <button class="btn btn-primary" id="start-game">
+            Start Game <i class="fas fa-play"></i>
+        </button>
+       
+        <button class="btn btn-secondary" id="back-to-intro">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+    </div>
+
+
+    <!-- Join Game Page (Multiplayer Guest) -->
+    <div id="join-page" class="page">
+        <div class="logo">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <h2>JOIN ONLINE GAME</h2>
+        <p class="tagline">Enter your name to join the game</p>
+       
+        <div class="form-group">
+            <label for="player2-join">Your Name (O)</label>
+            <input type="text" id="player2-join" placeholder="Enter your name" value="Player 2">
+        </div>
+       
+        <button class="btn btn-primary" id="join-game-btn">
+            Join Game <i class="fas fa-sign-in-alt"></i>
+        </button>
+    </div>
+
+
+    <!-- Game Page -->
+    <div id="game-page" class="page">
+        <div class="logo">
+            <i class="fas fa-chess-board"></i>
+        </div>
+       
+        <div class="player-info">
+            <div class="player-card active" id="player1-card">
+                <h3>PLAYER 1</h3>
+                <div class="player-name" id="player1-name">Player 1</div>
+                <div class="player-symbol">X</div>
+            </div>
+           
+            <div class="player-card" id="player2-card">
+                <h3>PLAYER 2</h3>
+                <div class="player-name" id="player2-name">Player 2</div>
+                <div class="player-symbol">O</div>
+            </div>
+        </div>
+       
+        <div class="game-stats">
+            <div class="stat-card">
+                <h3><i class="fas fa-times"></i> PLAYER X</h3>
+                <div class="stat-value" id="scoreX">0</div>
+            </div>
+            <div class="stat-card">
+                <h3><i class="far fa-circle"></i> PLAYER O</h3>
+                <div class="stat-value" id="scoreO">0</div>
+            </div>
+            <div class="stat-card">
+                <h3><i class="fas fa-balance-scale"></i> DRAWS</h3>
+                <div class="stat-value" id="scoreDraw">0</div>
+            </div>
+            <div class="stat-card timer-card">
+                <h3><i class="fas fa-clock"></i> TIMER</h3>
+                <div class="stat-value" id="timer">00:30</div>
+            </div>
+        </div>
+       
+        <div class="game-status status-turn" id="gameStatus">
+            Player X's Turn
+        </div>
+       
+        <div class="game-board" id="gameBoard">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+       
+        <div class="voice-control">
+            <h3><i class="fas fa-microphone-alt"></i> VOICE CONTROL</h3>
+            <div class="voice-status">
+                <div class="voice-indicator" id="voiceIndicator"></div>
+                <span id="voiceStatusText">Click to Activate</span>
+            </div>
+            <button class="btn btn-accent" id="voiceControlBtn">
+                <i class="fas fa-microphone"></i> ACTIVATE VOICE CONTROL
+            </button>
+            <div class="voice-commands">
+                <p>Say numbers 1-9 or positions like:</p>
+                <p>"top left", "center", "bottom right"</p>
+            </div>
+        </div>
+       
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-primary" id="resetGameBtn">
+                <i class="fas fa-redo"></i> RESET GAME
+            </button>
+            <button class="btn btn-secondary" id="back-to-mode">
+                <i class="fas fa-arrow-left"></i> MAIN MENU
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        // Theme Management
+        function initializeTheme() {
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle.querySelector('i');
+            const themeText = themeToggle.querySelector('span') || document.createElement('span');
+           
+            if (!themeToggle.querySelector('span')) {
+                themeText.textContent = ' Dark Mode';
+                themeToggle.appendChild(themeText);
+            }
+           
+            // Check for saved theme or prefer color scheme
+            const savedTheme = localStorage.getItem('ticTacToeTheme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+           
+            if (savedTheme === 'light' || (!savedTheme && !prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeIcon.className = 'fas fa-sun';
+                themeText.textContent = ' Light Mode';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-moon';
+                themeText.textContent = ' Dark Mode';
+            }
+           
+            // Toggle theme on button click
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+               
+                if (currentTheme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    themeIcon.className = 'fas fa-sun';
+                    themeText.textContent = ' Light Mode';
+                    localStorage.setItem('ticTacToeTheme', 'light');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeIcon.className = 'fas fa-moon';
+                    themeText.textContent = ' Dark Mode';
+                    localStorage.setItem('ticTacToeTheme', 'dark');
+                }
+            });
+        }
+
+
+        // Game State
+        const gameState = {
+            currentPage: 'intro',
+            player1: 'Player 1',
+            player2: 'Player 2',
+            timeLimit: 30,
+            gameMode: 'man-vs-man',
+            board: Array(9).fill(''),
+            currentPlayer: 'X',
+            gameActive: true,
+            scores: { X: 0, O: 0, draw: 0 },
+            timer: null,
+            timeLeft: 30,
+            voiceActive: false,
+            gameId: null,
+            mySymbol: null,
+            pollingInterval: null
+        };
+
+
+        // DOM Elements
+        const pages = {
+            intro: document.getElementById('intro-page'),
+            mode: document.getElementById('mode-page'),
+            game: document.getElementById('game-page'),
+            join: document.getElementById('join-page')
+        };
+
+
+        // Navigation Functions
+        function showPage(pageId) {
+            Object.values(pages).forEach(page => {
+                page.classList.remove('active');
+            });
+            pages[pageId].classList.add('active');
+            gameState.currentPage = pageId;
+        }
+
+
+        // Initialize Event Listeners
+        function initializeEventListeners() {
+            // Navigation
+            document.getElementById('next-to-mode').addEventListener('click', () => {
+                gameState.player1 = document.getElementById('player1').value || 'Player 1';
+                gameState.player2 = document.getElementById('player2').value || 'Player 2';
+                gameState.timeLimit = parseInt(document.getElementById('timeLimit').value);
+               
+                document.getElementById('player1-name').textContent = gameState.player1;
+                document.getElementById('player2-name').textContent = gameState.player2;
+               
+                showPage('mode');
+            });
+
+
+            document.getElementById('back-to-intro').addEventListener('click', () => {
+                const startBtn = document.getElementById('start-game');
+                startBtn.disabled = false;
+                startBtn.innerHTML = 'Start Game <i class="fas fa-play"></i>';
+                showPage('intro');
+            });
+
+
+            document.getElementById('back-to-mode').addEventListener('click', () => {
+                if (gameState.gameMode === 'multiplayer') {
+                    stopPolling();
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+                resetGame();
+                showPage('mode');
+            });
+
+
+            // Mode Selection
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-card').forEach(c => {
+                        c.classList.remove('active');
+                    });
+                    card.classList.add('active');
+                    gameState.gameMode = card.dataset.mode;
+                    
+                    // Show/hide link section for multiplayer
+                    const linkSection = document.getElementById('link-section');
+                    if (gameState.gameMode === 'multiplayer') {
+                        linkSection.style.display = 'block';
+                    } else {
+                        linkSection.style.display = 'none';
+                    }
+                });
+            });
+
+
+            // Copy Link
+            document.getElementById('copy-link').addEventListener('click', () => {
+                const linkInput = document.getElementById('game-link');
+                linkInput.select();
+                document.execCommand('copy');
+                alert('Link copied to clipboard!');
+            });
+
+
+            // Start Game
+            document.getElementById('start-game').addEventListener('click', () => {
+                if (gameState.gameMode === 'multiplayer') {
+                    const p1Name = document.getElementById('player1').value || 'Player 1';
+                    fetch('/api/game', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ player1Name: p1Name })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        gameState.gameId = data.id;
+                        gameState.mySymbol = 'X';
+                        gameState.player1 = data.player1Name || 'Player 1';
+                        gameState.player2 = data.player2Name || 'Waiting...';
+                        
+                        const joinLink = `${window.location.origin}${window.location.pathname}?gameId=${gameState.gameId}`;
+                        document.getElementById('game-link').value = joinLink;
+                        document.getElementById('link-section').style.display = 'block';
+                        
+                        const startBtn = document.getElementById('start-game');
+                        startBtn.disabled = true;
+                        startBtn.innerHTML = 'Waiting for Opponent... <i class="fas fa-spinner fa-spin"></i>';
+                        
+                        startPolling();
+                    })
+                    .catch(err => {
+                        console.error('Error creating game:', err);
+                        alert('Error starting multiplayer game. Please try again.');
+                    });
+                } else {
+                    showPage('game');
+                    resetGame();
+                }
+            });
+
+
+            // Join Game Button (for Player 2)
+            document.getElementById('join-game-btn').addEventListener('click', () => {
+                const p2Name = document.getElementById('player2-join').value || 'Player 2';
+                fetch(`/api/game/${gameState.gameId}/join`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ player2Name: p2Name })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Could not join game');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    gameState.player1 = data.player1Name || 'Player 1';
+                    gameState.player2 = data.player2Name || 'Player 2';
+                    document.getElementById('player1-name').textContent = gameState.player1;
+                    document.getElementById('player2-name').textContent = gameState.player2;
+                    
+                    showPage('game');
+                    syncUIWithData(data);
+                    startPolling();
+                })
+                .catch(err => {
+                    console.error('Error joining game:', err);
+                    alert('Error joining game. Please make sure the link is correct.');
+                });
+            });
+
+
+            // Game Controls
+            document.getElementById('resetGameBtn').addEventListener('click', () => {
+                if (gameState.gameMode === 'multiplayer') {
+                    fetch(`/api/game/${gameState.gameId}/reset`, {
+                        method: 'POST'
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        syncUIWithData(data);
+                    })
+                    .catch(err => {
+                        console.error('Error resetting game:', err);
+                    });
+                } else {
+                    resetGame();
+                }
+            });
+            document.getElementById('voiceControlBtn').addEventListener('click', toggleVoiceControl);
+
+
+            // Cell Clicks
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.addEventListener('click', (e) => {
+                    if (!gameState.gameActive) return;
+                    
+                    const index = parseInt(e.target.dataset.index);
+                    if (gameState.board[index] !== '') return;
+                    
+                    if (gameState.gameMode === 'multiplayer') {
+                        if (gameState.currentPlayer !== gameState.mySymbol) return;
+                        
+                        fetch(`/api/game/${gameState.gameId}/move`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ position: index })
+                        })
+                        .then(res => {
+                            if (!res.ok) throw new Error('Invalid move');
+                            return res.json();
+                        })
+                        .then(data => {
+                            syncUIWithData(data);
+                        })
+                        .catch(err => {
+                            console.error('Error making move:', err);
+                        });
+                    } else {
+                        makeMove(index);
+                        
+                        if (gameState.gameMode === 'man-vs-robot' && gameState.gameActive && gameState.currentPlayer === 'O') {
+                            setTimeout(() => makeAIMove(), 800);
+                        }
+                    }
+                });
+            });
+
+
+            // Initialize voice recognition
+            initializeVoiceRecognition();
+        }
+
+
+        // Voice Recognition
+        function initializeVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                gameState.recognition = new SpeechRecognition();
+               
+                gameState.recognition.continuous = true;
+                gameState.recognition.interimResults = false;
+                gameState.recognition.lang = 'en-US';
+
+
+                gameState.recognition.onstart = () => {
+                    setVoiceStatus(true, 'Listening...');
+                };
+
+
+                gameState.recognition.onend = () => {
+                    setVoiceStatus(false, 'Click to Activate');
+                };
+
+
+                gameState.recognition.onresult = (event) => {
+                    const command = event.results[event.results.length - 1][0].transcript;
+                    processVoiceCommand(command);
+                };
+
+
+                gameState.recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                    setVoiceStatus(false, 'Error - Click to Retry');
+                };
+            } else {
+                setVoiceStatus(false, 'Not Supported');
+                document.getElementById('voiceControlBtn').disabled = true;
+            }
+        }
+
+
+        function setVoiceStatus(active, text) {
+            const indicator = document.getElementById('voiceIndicator');
+            const statusText = document.getElementById('voiceStatusText');
+           
+            if (active) {
+                indicator.classList.add('active');
+                gameState.voiceActive = true;
+            } else {
+                indicator.classList.remove('active');
+                gameState.voiceActive = false;
+            }
+           
+            statusText.textContent = text;
+        }
+
+
+        function toggleVoiceControl() {
+            if (!gameState.recognition) return;
+           
+            if (gameState.voiceActive) {
+                gameState.recognition.stop();
+            } else {
+                try {
+                    gameState.recognition.start();
+                } catch (error) {
+                    console.error('Error starting recognition:', error);
+                }
+            }
+        }
+
+
+        function processVoiceCommand(command) {
+            console.log('Voice command:', command);
+           
+            const positionMap = {
+                'one': 0, 'two': 1, 'three': 2,
+                'four': 3, 'five': 4, 'six': 5,
+                'seven': 6, 'eight': 7, 'nine': 8,
+                'top left': 0, 'top middle': 1, 'top right': 2,
+                'middle left': 3, 'center': 4, 'middle right': 5,
+                'bottom left': 6, 'bottom middle': 7, 'bottom right': 8
+            };
+
+
+            const lowerCommand = command.toLowerCase().trim();
+           
+            for (const [key, value] of Object.entries(positionMap)) {
+                if (lowerCommand.includes(key)) {
+                    if (gameState.board[value] === '') {
+                        makeMove(value);
+                        return;
+                    }
+                }
+            }
+        }
+
+
+        // Game Logic
+        function makeMove(index) {
+            if (!gameState.gameActive) return;
+           
+            // Start timer on first move
+            if (gameState.board.every(cell => cell === '') && gameState.currentPlayer === 'X') {
+                startTimer();
+            }
+           
+            gameState.board[index] = gameState.currentPlayer;
+            updateBoard();
+           
+            const gameResult = checkWinner();
+            if (gameResult) {
+                handleGameEnd(gameResult);
+            } else if (gameState.board.every(cell => cell !== '')) {
+                handleGameEnd('draw');
+            } else {
+                gameState.currentPlayer = gameState.currentPlayer === 'X' ? 'O' : 'X';
+                updateGameStatus();
+                resetTimer();
+            }
+        }
+
+
+        function makeAIMove() {
+            const availableMoves = gameState.board.map((cell, index) => cell === '' ? index : null)
+                .filter(index => index !== null);
+           
+            if (availableMoves.length > 0) {
+                // Simple AI strategy
+                const move = getBestMove();
+                if (move !== -1) {
+                    makeMove(move);
+                } else {
+                    const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                    makeMove(randomMove);
+                }
+            }
+        }
+
+
+        function getBestMove() {
+            // Check for winning move
+            for (let i = 0; i < 9; i++) {
+                if (gameState.board[i] === '') {
+                    gameState.board[i] = 'O';
+                    if (checkWinner()?.winner === 'O') {
+                        gameState.board[i] = '';
+                        return i;
+                    }
+                    gameState.board[i] = '';
+                }
+            }
+
+
+            // Block player's winning move
+            for (let i = 0; i < 9; i++) {
+                if (gameState.board[i] === '') {
+                    gameState.board[i] = 'X';
+                    if (checkWinner()?.winner === 'X') {
+                        gameState.board[i] = '';
+                        return i;
+                    }
+                    gameState.board[i] = '';
+                }
+            }
+
+
+            // Take center if available
+            if (gameState.board[4] === '') return 4;
+
+
+            // Take corners
+            const corners = [0, 2, 6, 8];
+            const availableCorners = corners.filter(index => gameState.board[index] === '');
+            if (availableCorners.length > 0) {
+                return availableCorners[Math.floor(Math.random() * availableCorners.length)];
+            }
+
+
+            return -1; // No best move found
+        }
+
+
+        function checkWinner() {
+            const winningCombinations = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6] // diagonals
+            ];
+
+
+            for (let combination of winningCombinations) {
+                const [a, b, c] = combination;
+                if (gameState.board[a] && gameState.board[a] === gameState.board[b] && gameState.board[a] === gameState.board[c]) {
+                    return {
+                        winner: gameState.board[a],
+                        winningLine: combination
+                    };
+                }
+            }
+            return null;
+        }
+
+
+        function handleGameEnd(result) {
+            gameState.gameActive = false;
+            stopTimer();
+           
+            if (result === 'draw') {
+                gameState.scores.draw++;
+                updateGameStatus("It's a draw!", 'status-draw');
+            } else {
+                gameState.scores[result.winner]++;
+                updateGameStatus(`${result.winner === 'X' ? gameState.player1 : gameState.player2} wins!`, 'status-win');
+               
+                if (result.winningLine) {
+                    highlightWinningLine(result.winningLine);
+                    createConfetti();
+                }
+            }
+           
+            updateScoreDisplay();
+            updatePlayerCards();
+        }
+
+
+        function highlightWinningLine(winningLine) {
+            winningLine.forEach(index => {
+                const cell = document.querySelector(`.cell[data-index="${index}"]`);
+                cell.classList.add('winning');
+            });
+        }
+
+
+        function createConfetti() {
+            const container = document.querySelector('.container');
+            const colors = ['#6c5ce7', '#a29bfe', '#fd79a8', '#00b894', '#fdcb6e'];
+           
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.opacity = '1';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+               
+                document.body.appendChild(confetti);
+               
+                // Animate confetti
+                const animation = confetti.animate([
+                    { transform: 'translateY(-100vh) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(100vh) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 3000 + 2000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)'
+                });
+               
+                animation.onfinish = () => {
+                    confetti.remove();
+                };
+            }
+        }
+
+
+        function updateBoard() {
+            document.querySelectorAll('.cell').forEach((cell, index) => {
+                cell.textContent = gameState.board[index];
+                cell.className = 'cell';
+                if (gameState.board[index]) {
+                    cell.classList.add(gameState.board[index].toLowerCase());
+                }
+            });
+        }
+
+
+        function updateGameStatus(message, statusClass = 'status-turn') {
+            const statusElement = document.getElementById('gameStatus');
+            if (message) {
+                statusElement.textContent = message;
+            } else {
+                statusElement.textContent = `${gameState.currentPlayer === 'X' ? gameState.player1 : gameState.player2}'s Turn`;
+            }
+            statusElement.className = 'game-status ' + statusClass;
+        }
+
+
+        function updateScoreDisplay() {
+            document.getElementById('scoreX').textContent = gameState.scores.X;
+            document.getElementById('scoreO').textContent = gameState.scores.O;
+            document.getElementById('scoreDraw').textContent = gameState.scores.draw;
+        }
+
+
+        function updatePlayerCards() {
+            const player1Card = document.getElementById('player1-card');
+            const player2Card = document.getElementById('player2-card');
+           
+            if (gameState.currentPlayer === 'X') {
+                player1Card.classList.add('active');
+                player2Card.classList.remove('active');
+            } else {
+                player1Card.classList.remove('active');
+                player2Card.classList.add('active');
+            }
+        }
+
+
+        // Timer Functions
+        function startTimer() {
+            if (gameState.timeLimit === 0) return;
+           
+            gameState.timeLeft = gameState.timeLimit;
+            updateTimerDisplay();
+           
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                updateTimerDisplay();
+               
+                if (gameState.timeLeft <= 0) {
+                    handleTimeUp();
+                }
+            }, 1000);
+        }
+
+
+        function resetTimer() {
+            if (gameState.timeLimit === 0) return;
+           
+            gameState.timeLeft = gameState.timeLimit;
+            updateTimerDisplay();
+        }
+
+
+        function stopTimer() {
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+                gameState.timer = null;
+            }
+        }
+
+
+        function updateTimerDisplay() {
+            const timerElement = document.getElementById('timer');
+            const minutes = Math.floor(gameState.timeLeft / 60);
+            const seconds = gameState.timeLeft % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+           
+            // Change color when time is running out
+            if (gameState.timeLeft <= 10) {
+                timerElement.parentElement.style.background = 'linear-gradient(135deg, var(--danger), var(--accent))';
+            } else if (gameState.timeLeft <= 20) {
+                timerElement.parentElement.style.background = 'linear-gradient(135deg, var(--warning), var(--accent))';
+            } else {
+                timerElement.parentElement.style.background = 'linear-gradient(135deg, var(--primary), var(--accent))';
+            }
+        }
+
+
+        function handleTimeUp() {
+            stopTimer();
+            if (gameState.gameMode === 'multiplayer') {
+                if (gameState.currentPlayer === gameState.mySymbol) {
+                    fetch(`/api/game/${gameState.gameId}/timeout`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ currentPlayer: gameState.mySymbol })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        syncUIWithData(data);
+                    })
+                    .catch(err => {
+                        console.error('Error timing out turn:', err);
+                    });
+                }
+            } else {
+                gameState.currentPlayer = gameState.currentPlayer === 'X' ? 'O' : 'X';
+                updateGameStatus(`Time's up! ${gameState.currentPlayer === 'X' ? gameState.player1 : gameState.player2}'s turn`);
+                resetTimer();
+                startTimer();
+            }
+        }
+
+
+        // Multiplayer Polling and Syncing
+        function startPolling() {
+            stopPolling();
+            gameState.pollingInterval = setInterval(() => {
+                if (!gameState.gameId) return;
+                fetch(`/api/game/${gameState.gameId}`)
+                .then(res => {
+                    if (res.status === 404) {
+                        stopPolling();
+                        alert('Game session ended by server.');
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        showPage('intro');
+                        return;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data) syncUIWithData(data);
+                })
+                .catch(err => {
+                    console.error('Polling error:', err);
+                });
+            }, 1000);
+        }
+
+        function stopPolling() {
+            if (gameState.pollingInterval) {
+                clearInterval(gameState.pollingInterval);
+                gameState.pollingInterval = null;
+            }
+        }
+
+        function syncUIWithData(data) {
+            const serverBoard = data.board.map(cell => cell === null ? '' : cell);
+            const boardChanged = JSON.stringify(gameState.board) !== JSON.stringify(serverBoard);
+            
+            if (boardChanged) {
+                gameState.board = serverBoard;
+                updateBoard();
+                
+                if (gameState.currentPlayer !== data.currentPlayer && gameState.gameActive && data.active) {
+                    resetTimer();
+                }
+            }
+            
+            gameState.currentPlayer = data.currentPlayer;
+            gameState.gameActive = data.active;
+            
+            if (data.player1Name) {
+                gameState.player1 = data.player1Name;
+                document.getElementById('player1-name').textContent = gameState.player1;
+            }
+            if (data.player2Name) {
+                gameState.player2 = data.player2Name;
+                document.getElementById('player2-name').textContent = gameState.player2;
+                
+                if (gameState.currentPage === 'mode' && gameState.mySymbol === 'X') {
+                    const startBtn = document.getElementById('start-game');
+                    startBtn.disabled = false;
+                    startBtn.innerHTML = 'Start Game <i class="fas fa-play"></i>';
+                    
+                    showPage('game');
+                    resetTimer();
+                    startTimer();
+                }
+            }
+            
+            updatePlayerCards();
+            
+            if (!gameState.gameActive) {
+                stopTimer();
+                
+                if (data.winningLine && data.winningLine.length > 0) {
+                    const winnerSymbol = serverBoard[data.winningLine[0]];
+                    const isWinningHighlighted = document.querySelector('.cell.winning');
+                    if (!isWinningHighlighted) {
+                        highlightWinningLine(data.winningLine);
+                        createConfetti();
+                        
+                        gameState.scores[winnerSymbol]++;
+                        updateScoreDisplay();
+                        updateGameStatus(`${winnerSymbol === 'X' ? gameState.player1 : gameState.player2} wins!`, 'status-win');
+                    }
+                } else if (serverBoard.every(cell => cell !== '')) {
+                    const statusText = document.getElementById('gameStatus').textContent;
+                    if (!statusText.includes("draw")) {
+                        gameState.scores.draw++;
+                        updateScoreDisplay();
+                        updateGameStatus("It's a draw!", 'status-draw');
+                    }
+                }
+            } else {
+                const isWinningHighlighted = document.querySelector('.cell.winning');
+                if (isWinningHighlighted) {
+                    document.querySelectorAll('.cell').forEach(cell => {
+                        cell.classList.remove('winning');
+                    });
+                }
+                
+                updateGameStatus();
+            }
+        }
+
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameId = urlParams.get('gameId');
+            if (gameId) {
+                gameState.gameId = gameId;
+                gameState.gameMode = 'multiplayer';
+                gameState.mySymbol = 'O';
+                
+                fetch(`/api/game/${gameId}`)
+                .then(res => {
+                    if (res.status === 404) {
+                        alert('Game not found! Starting a new local game.');
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        showPage('intro');
+                        return;
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (!data) return;
+                    gameState.player1 = data.player1Name || 'Player 1';
+                    showPage('join');
+                })
+                .catch(err => {
+                    console.error('Error loading game:', err);
+                    showPage('intro');
+                });
+            }
+        }
+
+
+        // Reset Game
+        function resetGame() {
+            gameState.board = Array(9).fill('');
+            gameState.currentPlayer = 'X';
+            gameState.gameActive = true;
+            stopTimer();
+            updateBoard();
+            updateGameStatus();
+            updatePlayerCards();
+           
+            // Remove winning highlights
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('winning');
+            });
+        }
+
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeTheme();
+            initializeEventListeners();
+            checkUrlParams();
+        });
+    </script>
+</body>
+</html>
+

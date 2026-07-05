@@ -961,13 +961,8 @@
                     card.classList.add('active');
                     gameState.gameMode = card.dataset.mode;
                     
-                    // Show/hide link section for multiplayer
-                    const linkSection = document.getElementById('link-section');
-                    if (gameState.gameMode === 'multiplayer') {
-                        linkSection.style.display = 'block';
-                    } else {
-                        linkSection.style.display = 'none';
-                    }
+                    // Hide link section initially until "Start Game" is clicked
+                    document.getElementById('link-section').style.display = 'none';
                 });
             });
 
